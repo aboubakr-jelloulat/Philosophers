@@ -6,7 +6,7 @@
 /*   By: ajelloul <ajelloul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/08 12:19:12 by ajelloul          #+#    #+#             */
-/*   Updated: 2025/04/08 12:21:29 by ajelloul         ###   ########.fr       */
+/*   Updated: 2025/04/08 12:51:19 by ajelloul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -191,7 +191,7 @@
 //     // for (int i = 0; i < 100; i++) it's fun
 //     //     mails++;
 
-//     for (int i = 0; i < 10000000; i++) 
+//     for (int i = 0; i < 10000000; i++)
 //         mails++;
 
 //     return NULL;
@@ -212,18 +212,55 @@
 //     return 0;
 // }
 
-
 /* ******************  🤝 What is a Mutex ? ******************* */
 
 /*
     A mutex (short for " mut ual ex clusion") is a synchronization primitive.
     It is essentially a lock that allows us to regulate access to data and prevent shared resources being used at the same time.
 
-    We can think of a mutex as the lock of a bathroom door. 
-    One thread locks it to indicate that the bathroom is occupied. 
+    We can think of a mutex as the lock of a bathroom door.
+    One thread locks it to indicate that the bathroom is occupied.
     The other threads will just have to patiently stand in line until the door is unlocked before they can take their turn in the bathroom.
 
 */
+
+// int mails = 0;
+// pthread_mutex_t mutex;
+
+// void *routine()
+// {
+//     for (int i = 0; i < 10000000; i++)
+//     {
+//         pthread_mutex_lock(&mutex);
+//         mails++;
+//         pthread_mutex_unlock(&mutex);
+//     }
+
+//     return NULL;
+// }
+
+// int main(int ac, char **av)
+// {
+//     pthread_t t1, t2, t3;
+
+//     pthread_mutex_init(&mutex, NULL);
+
+//     pthread_create(&t1, NULL, &routine, NULL);
+//     pthread_create(&t2, NULL, &routine, NULL);
+//     pthread_create(&t3, NULL, &routine, NULL);
+
+//     pthread_join(t1, NULL);
+//     pthread_join(t2, NULL);
+//     pthread_join(t3, NULL);
+
+//     printf("numbers of mails : %d\n", mails);
+
+//     pthread_mutex_destroy(&mutex); // free / destroy memory allocate    Destroying a Mutex
+
+//     return 0;
+// }
+
+/*          ************  How to create threads in a loop (pthread_create)   ***************** */
 
 int mails = 0;
 pthread_mutex_t mutex;
@@ -240,23 +277,32 @@ void *routine()
     return NULL;
 }
 
-int main(int ac, char **av)
+int main(void)
 {
-    pthread_t t1, t2, t3;
-
+    pthread_t th[4];
     pthread_mutex_init(&mutex, NULL);
 
-    pthread_create(&t1, NULL, &routine, NULL);
-    pthread_create(&t2, NULL, &routine, NULL);
-    pthread_create(&t3, NULL, &routine, NULL);
+    for (int i = 0; i <= 8; ++i)
+    {
+        pthread_create(&th[i], NULL, &routine, NULL);
+        printf("\033[32mThread %d has started\033[0m\n", i);
 
-    pthread_join(t1, NULL);
-    pthread_join(t2, NULL);
-    pthread_join(t3, NULL);
+    }
 
-    printf("numbers of mails : %d\n", mails);
+    for (int i = 0; i <= 8; ++i)
+    {
+        pthread_join(th[i], NULL);
+        printf("\033[31mThread %d has finished execution\033[0m\n\n", i);
+    }
 
-    pthread_mutex_destroy(&mutex); // free / destroy memory allocate 
+    printf("\nNumber of mails is : %d\n", mails);
+
+    pthread_mutex_destroy(&mutex);
 
     return 0;
 }
+
+/*
+    if we use only one for loop for creat and join that mean is : no synchronization 
+
+*/
