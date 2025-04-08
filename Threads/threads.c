@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   threads.c                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ajelloul <ajelloul@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/04/08 12:19:12 by ajelloul          #+#    #+#             */
+/*   Updated: 2025/04/08 12:21:29 by ajelloul         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -98,75 +110,153 @@
 
 /*      **************  Synchronization Errors  ****************** */
 
-#define TIMES_TO_COUNT 21000
+// #define TIMES_TO_COUNT 21000
 
-#define NC "\e[0m"
-#define YELLOW "\e[33m"
-#define BYELLOW "\e[1;33m"
-#define RED "\e[31m"
-#define GREEN "\e[32m"
+// #define NC "\e[0m"
+// #define YELLOW "\e[33m"
+// #define BYELLOW "\e[1;33m"
+// #define RED "\e[31m"
+// #define GREEN "\e[32m"
 
-void *thread_routine(void *data)
-{
-    // Each thread starts here
-    pthread_t tid;
-    unsigned int *count; // pointer to the variable created in main
-    unsigned int i;
+// void *thread_routine(void *data)
+// {
+//     // Each thread starts here
+//     pthread_t tid;
+//     unsigned int *count; // pointer to the variable created in main
+//     unsigned int i;
 
-    tid = pthread_self();
-    count = (unsigned int *)data;
-    // Print the count before this thread starts iterating:
-    printf("%sThread [%ld]: Count at thread start = %u.%s\n", YELLOW, tid, *count, NC);
+//     tid = pthread_self();
+//     count = (unsigned int *)data;
+//     // Print the count before this thread starts iterating:
+//     printf("%sThread [%ld]: Count at thread start = %u.%s\n", YELLOW, tid, *count, NC);
 
-    i = 0;
-    while (i < TIMES_TO_COUNT)
-    {
-        // Iterate TIMES_TO_COUNT times && Increment the counter at each iteration
-        (*count)++;
-        i++;
-    }
-    // Print the final count when this thread
+//     i = 0;
+//     while (i < TIMES_TO_COUNT)
+//     {
+//         // Iterate TIMES_TO_COUNT times && Increment the counter at each iteration
+//         (*count)++;
+//         i++;
+//     }
+//     // Print the final count when this thread
 
-    printf("%sThread [%ld]: Final count = %u.%s\n", BYELLOW, tid, *count, NC);
+//     printf("%sThread [%ld]: Final count = %u.%s\n", BYELLOW, tid, *count, NC);
 
-    return (NULL);
-}
+//     return (NULL);
+// }
 
-int main(void)
-{
-    pthread_t tid1;
-    pthread_t tid2;
-    // Variable to keep track of the threads' counts:
-    unsigned int count;
+// int main(void)
+// {
+//     pthread_t tid1;
+//     pthread_t tid2;
+//     // Variable to keep track of the threads' counts:
+//     unsigned int count;
 
-    count = 0;
-    // Since each thread counts TIMES_TO_COUNT times and that
-    // we have 2 threads, we expect the final count to be
-    // 2 * TIMES_TO_COUNT:
-    printf("Main: Expected count is %s%u%s\n", GREEN, 2 * TIMES_TO_COUNT, NC);
+//     count = 0;
+//     // Since each thread counts TIMES_TO_COUNT times and that
+//     // we have 2 threads, we expect the final count to be
+//     // 2 * TIMES_TO_COUNT:
+//     printf("Main: Expected count is %s%u%s\n", GREEN, 2 * TIMES_TO_COUNT, NC);
 
-    pthread_create(&tid1, NULL, thread_routine, &count);
-    printf("Main: Created first thread [%ld]\n", tid1);
+//     pthread_create(&tid1, NULL, thread_routine, &count);
+//     printf("Main: Created first thread [%ld]\n", tid1);
 
-    pthread_create(&tid2, NULL, thread_routine, &count);
-    printf("Main: Created second thread [%ld]\n", tid2);
-   
-    pthread_join(tid1, NULL);
-    printf("Main: Joined first thread [%ld]\n", tid1);
-    sleep(2);
-    pthread_join(tid2, NULL);
-    printf("Main: Joined second thread [%ld]\n", tid2);
-    
-    
-    if (count != (2 * TIMES_TO_COUNT))
-        printf("%sMain: ERROR ! Total count is %u%s\n", RED, count, NC);
-    else
-        printf("%sMain: OK. Total count is %u%s\n", GREEN, count, NC);
-    return (0);
-}
+//     pthread_create(&tid2, NULL, thread_routine, &count);
+//     printf("Main: Created second thread [%ld]\n", tid2);
+
+//     pthread_join(tid1, NULL);
+//     printf("Main: Joined first thread [%ld]\n", tid1);
+//     sleep(2);
+//     pthread_join(tid2, NULL);
+//     printf("Main: Joined second thread [%ld]\n", tid2);
+
+//     if (count != (2 * TIMES_TO_COUNT))
+//         printf("%sMain: ERROR ! Total count is %u%s\n", RED, count, NC);
+//     else
+//         printf("%sMain: OK. Total count is %u%s\n", GREEN, count, NC);
+//     return (0);
+// }
 /*
     The failure occurs because multiple threads are concurrently modifying the count variable,
     but without synchronization. This means both threads are reading and writing to the same count variable at the same time,
     which leads to race conditions.
 
 */
+
+/*  ******************      The Danger of Data Races     ********************** */
+
+// int mails = 0;
+
+// void *routine()
+// {
+//     // for (int i = 0; i < 100; i++) it's fun
+//     //     mails++;
+
+//     for (int i = 0; i < 10000000; i++) 
+//         mails++;
+
+//     return NULL;
+// }
+
+// int main(int ac, char **av)
+// {
+//     pthread_t t1, t2;
+
+//     pthread_create(&t1, NULL, &routine, NULL);
+//     pthread_create(&t2, NULL, &routine, NULL);
+
+//     pthread_join(t1, NULL);
+//     pthread_join(t2, NULL);
+
+//     printf("numbers of mails : %d\n", mails);
+
+//     return 0;
+// }
+
+
+/* ******************  🤝 What is a Mutex ? ******************* */
+
+/*
+    A mutex (short for " mut ual ex clusion") is a synchronization primitive.
+    It is essentially a lock that allows us to regulate access to data and prevent shared resources being used at the same time.
+
+    We can think of a mutex as the lock of a bathroom door. 
+    One thread locks it to indicate that the bathroom is occupied. 
+    The other threads will just have to patiently stand in line until the door is unlocked before they can take their turn in the bathroom.
+
+*/
+
+int mails = 0;
+pthread_mutex_t mutex;
+
+void *routine()
+{
+    for (int i = 0; i < 10000000; i++)
+    {
+        pthread_mutex_lock(&mutex);
+        mails++;
+        pthread_mutex_unlock(&mutex);
+    }
+
+    return NULL;
+}
+
+int main(int ac, char **av)
+{
+    pthread_t t1, t2, t3;
+
+    pthread_mutex_init(&mutex, NULL);
+
+    pthread_create(&t1, NULL, &routine, NULL);
+    pthread_create(&t2, NULL, &routine, NULL);
+    pthread_create(&t3, NULL, &routine, NULL);
+
+    pthread_join(t1, NULL);
+    pthread_join(t2, NULL);
+    pthread_join(t3, NULL);
+
+    printf("numbers of mails : %d\n", mails);
+
+    pthread_mutex_destroy(&mutex); // free / destroy memory allocate 
+
+    return 0;
+}
