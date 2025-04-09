@@ -6,7 +6,7 @@
 /*   By: ajelloul <ajelloul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/08 12:19:12 by ajelloul          #+#    #+#             */
-/*   Updated: 2025/04/08 12:51:19 by ajelloul         ###   ########.fr       */
+/*   Updated: 2025/04/09 09:09:20 by ajelloul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <pthread.h> // For Threads
+#include <time.h>
 
 // void *routine()
 // {
@@ -262,47 +263,77 @@
 
 /*          ************  How to create threads in a loop (pthread_create)   ***************** */
 
-int mails = 0;
-pthread_mutex_t mutex;
+// int mails = 0;
+// pthread_mutex_t mutex;
 
-void *routine()
-{
-    for (int i = 0; i < 10000000; i++)
-    {
-        pthread_mutex_lock(&mutex);
-        mails++;
-        pthread_mutex_unlock(&mutex);
-    }
+// void *routine()
+// {
+//     for (int i = 0; i < 10000000; i++)
+//     {
+//         pthread_mutex_lock(&mutex);
+//         mails++;
+//         pthread_mutex_unlock(&mutex);
+//     }
 
-    return NULL;
-}
+//     return NULL;
+// }
 
-int main(void)
-{
-    pthread_t th[4];
-    pthread_mutex_init(&mutex, NULL);
+// int main(void)
+// {
+//     pthread_t th[4];
+//     pthread_mutex_init(&mutex, NULL);
 
-    for (int i = 0; i <= 8; ++i)
-    {
-        pthread_create(&th[i], NULL, &routine, NULL);
-        printf("\033[32mThread %d has started\033[0m\n", i);
+//     for (int i = 0; i <= 8; ++i)
+//     {
+//         pthread_create(&th[i], NULL, &routine, NULL);
+//         printf("\033[32mThread %d has started\033[0m\n", i);
 
-    }
+//     }
 
-    for (int i = 0; i <= 8; ++i)
-    {
-        pthread_join(th[i], NULL);
-        printf("\033[31mThread %d has finished execution\033[0m\n\n", i);
-    }
+//     for (int i = 0; i <= 8; ++i)
+//     {
+//         pthread_join(th[i], NULL);
+//         printf("\033[31mThread %d has finished execution\033[0m\n\n", i);
+//     }
 
-    printf("\nNumber of mails is : %d\n", mails);
+//     printf("\nNumber of mails is : %d\n", mails);
 
-    pthread_mutex_destroy(&mutex);
+//     pthread_mutex_destroy(&mutex);
 
-    return 0;
-}
+//     return 0;
+// }
 
 /*
     if we use only one for loop for creat and join that mean is : no synchronization 
 
 */
+
+
+
+/*  ****************** Get return value from a thread (pthread_join) *******************/
+
+void *roll_dice()
+{
+    int value = (rand() % 6) + 1;
+    int *result = malloc(sizeof(int));
+
+    *result = value; 
+   
+   return (void *) result;
+}
+
+
+int main(void)
+{
+    srand(time(NULL));
+    pthread_t   th;
+    int *res;
+
+    pthread_create(&th, NULL, &roll_dice, NULL);
+    
+    pthread_join(th, (void **) &res);
+
+    printf("Result : %d\n", *res);
+
+    return 0;
+}
