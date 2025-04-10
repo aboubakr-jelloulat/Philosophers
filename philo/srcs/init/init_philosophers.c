@@ -13,6 +13,8 @@ int init_philosophers(int ac, char *av[], t_table *table)
     table->all_ate_enough = 0;
     table->finish = 0;
     init_mutex_for_each_fork(table);
+    
+
 
     return 1;
 }
