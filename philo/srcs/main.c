@@ -17,18 +17,11 @@ void foo()
 int main(int ac, char **av)
 {
     atexit (foo);
-    t_table *table;
+   
     (void) av;
-
     if (ac != 5 && ac != 6)
-    {
         return (Usage());
-    }
-    table = (t_table *) malloc(sizeof(t_table));
-   init_philosophers(ac, av, table);
-    
-
-    
+   init_philosophers(ac, av);
 
     return (0);
 }

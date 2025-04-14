@@ -14,7 +14,7 @@ static int  is_valid_argument(int ac, t_table table)
         return (ft_putstr_fd2("\nERROR: Invalid time to sleep value\n\n"));
     if (ac == 6 && table.times_each_philosopher_must_eat <= 0)
         return (ft_putstr_fd2("\nERROR: Invalid number of time  must eat value\n\n"));
-    return (0);
+    return (1);
 }
 
 int parse_arguments_and_check(int ac, char **av, t_table *table)

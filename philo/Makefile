@@ -9,6 +9,7 @@ RM          = rm -rf
 SRC_DIR     = srcs
 FEATURES_DIR= $(SRC_DIR)/features
 INIT_DIR	= $(SRC_DIR)/init
+SIMULATION_DIR	= $(SRC_DIR)/simulation
 
 # Header and Includes
 HEADER      = includes/philo.h
@@ -16,41 +17,41 @@ INCLUDES    = -I includes
 
 # Source Files
 SRC_MAIN    = main.c
-FEATURES    = ft_putstr_fd2.c ft_strlen.c ft_atoi.c
-INIT		= init_philosophers.c parse_arguments.c init_mutex.c 
+FEATURES    = display_status.c ft_atoi.c        ft_putstr_fd2.c  ft_strlen.c      system_time.c
+INIT		= init_mutex.c             init_philos_simulation.c init_philosophers.c      parse_arguments.c
+SIMULATION  = eating.c           philo_simulation.c pick_up_fork.c     put_down_fork.c    sleep_think.c
 
-SRC = $(addprefix $(SRC_DIR)/, $(SRC_MAIN)) \
-      $(addprefix $(FEATURES_DIR)/, $(FEATURES)) \
-      $(addprefix $(INIT_DIR)/, $(INIT))
+
+SRC = $(addprefix $(SRC_DIR)/, $(SRC_MAIN))  $(addprefix $(FEATURES_DIR)/, $(FEATURES))  $(addprefix $(INIT_DIR)/, $(INIT)) $(addprefix $(SIMULATION_DIR)/, $(SIMULATION))
 
 OBJ         = $(SRC:.c=.o)
 
 # Colors
-GREEN       = \033[92;5;118m
-YELLOW      = \033[93;5;226m
-GRAY        = \033[33;2;37m
+GREEN       = \033[1;32m
+YELLOW      = \033[1;33m
+GRAY        = \033[0;37m
 RESET       = \033[0m
-CURSIVE     = \033[33;3m
+ITALIC      = \033[3m
 
 # Rules
 all: $(NAME)
 
 $(NAME): $(OBJ)
-	@printf "$(CURSIVE)$(GRAY)  - Compiling $(NAME)... $(RESET)\n"
+	@echo "$(ITALIC)$(GRAY)→ Building executable: $(NAME)...$(RESET)"
 	@$(CC) $(CFLAGS) $(OBJ) $(PTHREAD) -o $(NAME)
-	@printf "$(GREEN)    - Executable ready.$(RESET)\n"
+	@echo "$(GREEN)✓ Build complete: $(NAME) is ready to run.$(RESET)"
 
 %.o: $(SRC_DIR)/%.c $(HEADER)
-	@printf "$(CURSIVE)$(GRAY)  - Compiling $< into $@...$(RESET)\n"
+	@echo "$(ITALIC)$(GRAY)→ Compiling: $< → $@$(RESET)"
 	@$(CC) $(CFLAGS) $(INCLUDES) $(PTHREAD) -c $< -o $@
 
 clean:
 	@$(RM) $(OBJ)
-	@printf "$(YELLOW)    - Object files removed.$(RESET)\n"
+	@echo "$(YELLOW)• Cleanup done: Object files removed.$(RESET)"
 
 fclean: clean
 	@$(RM) $(NAME)
-	@printf "$(YELLOW)    - Executable removed.$(RESET)\n"
+	@echo "$(YELLOW)• Full cleanup complete: Executable removed.$(RESET)"
 
 re: fclean all
 
